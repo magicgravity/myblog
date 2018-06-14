@@ -1,0 +1,11 @@
+database:
+    default:
+        - host:     127.0.0.1
+          port:     3306
+          user:     tale
+          pass:     "123456"
+          name:     tale
+          type:     mysql
+          role:     master
+          charset:  utf-8
+          priority: 1
