@@ -8,12 +8,17 @@ import (
 	"github.com/magicgravity/myblog/util"
 	"github.com/magicgravity/myblog/db"
 	"gitee.com/johng/gf/g/database/gdb"
+	"github.com/magicgravity/myblog/page"
 )
 
 func GetArticlesByKeyword(keyword string)[]map[string]interface{}{
 	return dao.SelectContentByKeywordType(keyword,"post","publish")
 }
 
+
+func GetArticleContents(p,limit uint64)*page.PageInfo{
+	return dao.PageSelectContentListByTypeStatus("post","publish",p,page.NewMysqlPageHelper(limit))
+}
 
 func PublishArticle(content model.Contents)(bool,uint32){
 
@@ -29,7 +34,7 @@ func PublishArticle(content model.Contents)(bool,uint32){
 				return false,0
 			}else{
 				if !util.IsPath(slug) {
-					glog.Error("slug path is not valid")
+					glog.Error("slug path is not valid ,slug == >"+slug)
 					//您输入的路径不合法
 					return false,0
 				}

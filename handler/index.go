@@ -1,6 +1,10 @@
 package handler
 
-import "gitee.com/johng/gf/g/net/ghttp"
+import (
+	"gitee.com/johng/gf/g/net/ghttp"
+	"strconv"
+	"gitee.com/johng/gf/g/frame/gins"
+)
 
 func init(){
 	ghttp.GetServer().BindHandler("get:/",     Index)
@@ -26,8 +30,12 @@ func init(){
 * @return
 */
 func Index(r *ghttp.Request){
-
-
+	limitParam := r.GetRequestString("limit")
+	var limit = 12
+	if limitParam!="" {
+		limit,_ = strconv.Atoi(limitParam)
+	}
+	getContentPages(0,limit,r)
 }
 
 
@@ -39,7 +47,25 @@ func Index(r *ghttp.Request){
 * @return 主页
  */
 func IndexPage(r *ghttp.Request){
+	pageNo := r.Get("pageNo")
+	limitParam := r.GetRequestString("limit")
+	var limit = 12
+	if limitParam!="" {
+		limit,_ = strconv.Atoi(limitParam)
+	}
+	p,_ := strconv.Atoi(pageNo)
+	getContentPages(p,limit,r)
+}
 
+/*
+首页内容的分页处理方法
+ */
+func getContentPages(p,limit int,r *ghttp.Request){
+	content, _ := gins.View().Parse("index.tpl", map[string]interface{}{
+		"id"   : 123,
+		"name" : "john",
+	})
+	r.Response.Write(content)
 }
 
 

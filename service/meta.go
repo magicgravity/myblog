@@ -11,15 +11,15 @@ import (
 func SaveMeta(tx *gdb.Tx,mtype,name string ,mid uint32)bool{
 	if len(mtype)>0 && len(name)>0 {
 		r := dao.SelectMetaByNameType(name,mtype)
-		if r!=nil {
+		if r!=nil && len(r)>0 {
 			//已经存在该项
-			glog.Error("save meta fail ,reason ===>already exist this meta ")
+			glog.Errorf("save meta fail ,reason ===>already exist this meta ,name=>%s , mtype=>%s ",name,mtype)
 			return false
 		}else{
 			if mid >0 {
 				//查找以前的 更新
 				existOld := dao.SelectMetaByMid(mid)
-				if existOld!= nil {
+				if existOld!= nil && len(existOld)>0{
 					//确实存在
 					ok := dao.UpdateMetaNameByMid(tx,mid,name)
 					if ok {
@@ -44,4 +44,5 @@ func SaveMeta(tx *gdb.Tx,mtype,name string ,mid uint32)bool{
 			}
 		}
 	}
+	return false
 }

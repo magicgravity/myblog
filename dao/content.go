@@ -6,6 +6,7 @@ import (
 	"github.com/golang/glog"
 	"gitee.com/johng/gf/g"
 	"gitee.com/johng/gf/g/database/gdb"
+	"github.com/magicgravity/myblog/page"
 )
 
 func InsertContent(tx *gdb.Tx,c model.Contents)(bool,uint32){
@@ -163,4 +164,33 @@ func UpdateContentCategory(tx *gdb.Tx,oldC,newC string)(bool,int64) {
 			return false,0
 		}
 	}
+}
+
+
+
+func PageSelectContentListByTypeStatus(mtype,status string,pageNo uint64,helper *page.MysqlPageHelper)*page.PageInfo{
+	var startPos uint64
+	var endPos uint64
+	if helper.NeedCount() {
+		totalCount,err := db.GetMySqlDbFromCfg().Table("t_contents").Where("type=?",mtype).And("status=?",status).OrderBy("created desc").Count()
+		if err!= nil {
+			glog.Error("pages select content by type status fail ,reason ==> ",err)
+			return nil
+		}else{
+			startPos,endPos = helper.CalPages(pageNo,uint64(totalCount))
+		}
+	}else{
+		startPos,endPos = helper.SimpleCalPages(pageNo)
+	}
+	glog.Info("startPos=>",startPos,";endPos=>",endPos)
+	if startPos==0 && endPos==0 {
+		return nil
+	}
+	l,err := db.GetMySqlDbFromCfg().Table("t_contents").Where("type=?",mtype).And("status=?",status).Limit(int(startPos),int(endPos-startPos)).OrderBy("cid desc,created desc").All()
+	if err!= nil {
+		glog.Error("pages select content by type status fail ,reason ==> ",err)
+		return nil
+	}
+
+	return helper.StartPage(l.ToList())
 }
